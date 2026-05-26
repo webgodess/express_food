@@ -1,118 +1,85 @@
-# Express Food Database
+# Express Food – Conception UML et base de données MySQL
 
-The Express Food Database is a MySQL database designed to support an online food delivery system. This database includes tables for managing users, addresses, menu items, order history, delivery managers, roles, and user roles. It also provides sample data to help you get started.
+Projet réalisé dans le cadre de la formation **Développeur d'application PHP / Symfony**.
 
-## Table of Contents
+L’objectif du projet est de concevoir la solution technique d’une application de restauration en ligne appelée **Express Food**.  
+Le travail porte principalement sur l’analyse du besoin, la modélisation UML, la conception du modèle de données et la création d’une base de données MySQL.
 
-1. [Schema](#schema)
-2. [Tables](#tables)
-3. [Sample Data](#sample-data)
+---
 
-## Schema <a name="schema"></a>
+## Présentation du besoin
 
-The database schema is named `express_food` and uses the `utf8mb3` character set.
+Express Food est une entreprise fictive de livraison de repas.
 
-## Tables <a name="tables"></a>
+Chaque jour, Express Food prépare **2 plats** et **2 desserts** dans son QG avec l’aide de chefs expérimentés. Les plats sont conditionnés à froid puis transmis à des livreurs à domicile. Ces livreurs circulent ensuite en ville en attendant qu’une commande leur soit attribuée.
 
-### Users
+Lorsqu’un client passe commande depuis l’application, un livreur disponible est missionné pour livrer la commande en moins de **20 minutes**.
 
-- `users_ID`: Unique identifier for users.
-- `firstName` and `lastName`: User's first and last name.
-- `phone_number`: User's phone number.
-- `email`: User's email address (unique).
-- `password`: User's password.
-- `role`: User's role (e.g., Client, DeliveryPerson).
-- `create_time`: Timestamp for user creation.
-- `update_time`: Timestamp for user profile updates.
+L’application doit permettre :
 
-### Addresses
+- aux clients de consulter les plats et desserts du jour ;
+- aux clients de commander un ou plusieurs plats ou desserts ;
+- aux livreurs de prendre en charge une commande ;
+- au client de suivre l’état de sa commande ;
+- à l’entreprise de gérer les plats du jour, les clients, les livreurs et les commandes passées.
 
-- `Address_ID`: Unique identifier for addresses.
-- `Street`, `Postal_Code`, and `City`: Address details.
-- `users_ID`: User associated with the address.
-- `create_time`: Timestamp for address creation.
-- `update_time`: Timestamp for address updates.
+---
 
-### Categories
+## Objectifs du projet
 
-- `category_ID`: Unique identifier for menu item categories.
-- `name`: Category name (e.g., Main, Dessert).
-- `create_time`: Timestamp for category creation.
-- `update_time`: Timestamp for category updates.
+Le projet consiste à concevoir une base de données capable de stocker les informations nécessaires au fonctionnement de l’application Express Food.
 
-### OrderHistory
+La base doit notamment permettre de gérer :
 
-- `OrderHistory_ID`: Unique identifier for order history records.
-- `Order_Date`: Date and time of the order.
-- `create_time`: Timestamp for order history creation.
-- `update_time`: Timestamp for order history updates.
-- `users_ID`: User who placed the order.
+- la liste des clients ;
+- la liste des livreurs ;
+- les rôles des utilisateurs ;
+- les adresses des utilisateurs ;
+- les plats et desserts proposés ;
+- les plats du jour ;
+- les commandes passées ;
+- les éléments commandés ;
+- l’affectation d’un livreur à une commande ;
+- les informations liées à la livraison.
 
-### Delivery Manager
+---
 
-- `delivery_manager_id`: Unique identifier for delivery managers.
-- `start_time` and `end_time`: Working hours for delivery managers.
-- `users_ID`: User assigned as a delivery manager.
-- `Address_ID`: Delivery manager's assigned address.
-- `OrderHistory_ID`: Order history associated with the delivery.
+## Livrables demandés
 
-### MenuItems
+Pour structurer la conception, plusieurs livrables UML et SQL ont été réalisés :
 
-- `MenuItem_ID`: Unique identifier for menu items.
-- `Name`: Name of the menu item.
-- `Price`: Price of the menu item.
-- `create_time`: Timestamp for menu item creation.
-- `update_time`: Timestamp for menu item updates.
+- diagrammes de cas d’utilisation ;
+- diagramme de classes ;
+- modèle de données ;
+- diagrammes de séquence ;
+- schéma de base de données MySQL ;
+- script SQL de création et d’insertion de données fictives.
 
-### Menu Schedule
+Les cas d’utilisation étudiés sont notamment :
 
-- `Menu_schedule_id`: Unique identifier for menu schedule entries.
-- `date`: Date for menu item availability.
-- `MenuItem_ID`: Menu item available on the date.
-- `create_time`: Timestamp for menu schedule creation.
-- `update_time`: Timestamp for menu schedule updates.
+- création d’une commande ;
+- ajout d’un plat du jour ;
+- livraison d’une commande.
 
-### MenuItem Categories
+---
 
-- `MenuItem_categories_ID`: Unique identifier for menu item categories.
-- `category_ID`: Category associated with the menu item.
-- `MenuItem_ID`: Menu item associated with the category.
-- `create_time`: Timestamp for category-menu item association.
-- `update_time`: Timestamp for updates.
+## Technologies utilisées
 
-### MenuItem Order
+- **UML** : modélisation des besoins et des entités de l’application.
+- **MySQL Workbench** : conception du modèle de données et génération du script SQL.
+- **MySQL** : création du schéma relationnel.
+- **SQL** : création des tables, définition des clés primaires/étrangères et insertion de données fictives.
+- **GitHub** : versionnement et mise à disposition des livrables.
 
-- `MenuItem_Order_ID`: Unique identifier for menu item orders.
-- `Quantity`: Quantity of the menu item in an order.
-- `MenuItem_ID`: Menu item in the order.
-- `OrderHistory_ID`: Order history associated with the menu item.
-- `create_time`: Timestamp for menu item order creation.
-- `update_time`: Timestamp for menu item order updates.
+---
 
-### Roles
+## Structure du dépôt
 
-- `roles_ID`: Unique identifier for roles.
-- `role`: Role name (e.g., Client, DeliveryPerson).
-- `create_time`: Timestamp for role creation.
-- `update_time`: Timestamp for role updates.
-
-### Users Roles
-
-- `users_roles_ID`: Unique identifier for user roles.
-- `users_ID`: User associated with the role.
-- `roles_ID`: Role assigned to the user.
-- `create_time`: Timestamp for user role assignment.
-- `update_time`: Timestamp for role updates.
-
-## Sample Data <a name="sample-data"></a>
-
-The database script includes sample data to help you understand and test the database structure. It includes:
-
-- Sample users with different roles (Client, DeliveryPerson).
-- Sample addresses associated with users.
-- Sample roles (DeliveryPerson, Client, Chef, Admin).
-- Sample menu items with categories (Main and Dessert).
-- Sample order history records.
-- Sample delivery manager records.
-
-Feel free to customize and expand upon this database structure and data to fit your specific requirements for an Express Food delivery system.
+```txt
+express_food/
+│
+├── P4_01_UMLdiagram.png          # Diagramme UML / modèle de données
+├── P4_02_MySQLdatabase.sql       # Script SQL de création de la base
+├── P4_02_MySQLdatabase.sql.mwb.bak
+├── P4_dbl.mwb                    # Fichier MySQL Workbench
+└── README.md                     # Présentation du projet
