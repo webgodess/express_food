@@ -48,8 +48,6 @@ La base doit notamment permettre de gérer :
 - **UML** : modélisation des besoins et des entités de l’application.
 - **MySQL Workbench** : conception du modèle de données et génération du script SQL.
 - **MySQL** : création du schéma relationnel.
-- **GitHub** : versionnement et mise à disposition des livrables.
-
 ---
 
 ## Structure du dépôt
