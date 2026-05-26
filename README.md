@@ -1,7 +1,6 @@
 # Express Food – Conception UML et base de données MySQL
 
-Projet réalisé dans le cadre de la formation **Développeur d'application PHP / Symfony**.
-
+Projet réalisé dans le cadre de la formation Openclassrooms
 L’objectif du projet est de concevoir la solution technique d’une application de restauration en ligne appelée **Express Food**.  
 Le travail porte principalement sur l’analyse du besoin, la modélisation UML, la conception du modèle de données et la création d’une base de données MySQL.
 
@@ -9,7 +8,7 @@ Le travail porte principalement sur l’analyse du besoin, la modélisation UML,
 
 ## Présentation du besoin
 
-Express Food est une entreprise fictive de livraison de repas.
+Express Food est une entreprise de livraison de repas.
 
 Chaque jour, Express Food prépare **2 plats** et **2 desserts** dans son QG avec l’aide de chefs expérimentés. Les plats sont conditionnés à froid puis transmis à des livreurs à domicile. Ces livreurs circulent ensuite en ville en attendant qu’une commande leur soit attribuée.
 
@@ -44,31 +43,11 @@ La base doit notamment permettre de gérer :
 
 ---
 
-## Livrables demandés
-
-Pour structurer la conception, plusieurs livrables UML et SQL ont été réalisés :
-
-- diagrammes de cas d’utilisation ;
-- diagramme de classes ;
-- modèle de données ;
-- diagrammes de séquence ;
-- schéma de base de données MySQL ;
-- script SQL de création et d’insertion de données fictives.
-
-Les cas d’utilisation étudiés sont notamment :
-
-- création d’une commande ;
-- ajout d’un plat du jour ;
-- livraison d’une commande.
-
----
-
 ## Technologies utilisées
 
 - **UML** : modélisation des besoins et des entités de l’application.
 - **MySQL Workbench** : conception du modèle de données et génération du script SQL.
 - **MySQL** : création du schéma relationnel.
-- **SQL** : création des tables, définition des clés primaires/étrangères et insertion de données fictives.
 - **GitHub** : versionnement et mise à disposition des livrables.
 
 ---
