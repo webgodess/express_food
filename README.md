@@ -50,6 +50,12 @@ La base doit notamment permettre de gérer :
 - **MySQL** : création du schéma relationnel.
 ---
 
+## Diagramme UML
+
+![Diagramme UML Express Food](P4_01_UMLdiagram.png)
+
+---
+
 ## Structure du dépôt
 
 ```txt
