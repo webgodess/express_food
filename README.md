@@ -1,6 +1,6 @@
 # Express Food – Conception UML et base de données MySQL
 
-Projet réalisé dans le cadre de la formation Openclassrooms
+Projet réalisé dans le cadre de la formation développeur web Openclassrooms
 L’objectif du projet est de concevoir la solution technique d’une application de restauration en ligne appelée **Express Food**.  
 Le travail porte principalement sur l’analyse du besoin, la modélisation UML, la conception du modèle de données et la création d’une base de données MySQL.
 
