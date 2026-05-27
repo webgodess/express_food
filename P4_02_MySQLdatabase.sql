@@ -1,32 +1,28 @@
--- MySQL Workbench Forward Engineering
 
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION';
 
--- Set the database name
+CREATE SCHEMA IF NOT EXISTS `express_food` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `express_food`;
 
--- -----------------------------------------------------
--- Schema express_food
--- -----------------------------------------------------
--- Drop the addresses table if it exists
-
-
-DROP TABLE IF EXISTS `express_food`.`OrderHistory`;
-DROP TABLE IF EXISTS `express_food`.`users_roles`;
-DROP TABLE IF EXISTS `express_food`.`menuitems`;
-
--- -----------------------------------------------------
--- Schema express_food
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `express_food` DEFAULT CHARACTER SET utf8mb3 ;
-USE `express_food` ;
+-- Drop child tables first because of foreign keys
+DROP TABLE IF EXISTS `delivery_manager`;
+DROP TABLE IF EXISTS `users_roles`;
+DROP TABLE IF EXISTS `menuitem_order`;
+DROP TABLE IF EXISTS `menuitem_categories`;
+DROP TABLE IF EXISTS `menu_schedule`;
+DROP TABLE IF EXISTS `addresses`;
+DROP TABLE IF EXISTS `orderhistory`;
+DROP TABLE IF EXISTS `menuitems`;
+DROP TABLE IF EXISTS `categories`;
+DROP TABLE IF EXISTS `roles`;
+DROP TABLE IF EXISTS `users`;
 
 -- -----------------------------------------------------
--- Table `express_food`.`users`
+-- Table `users`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `express_food`.`users`;
-CREATE TABLE IF NOT EXISTS `express_food`.`users` (
+CREATE TABLE `users` (
   `users_ID` INT NOT NULL AUTO_INCREMENT,
   `firstName` VARCHAR(45) NOT NULL,
   `lastName` VARCHAR(45) NOT NULL,
@@ -34,20 +30,16 @@ CREATE TABLE IF NOT EXISTS `express_food`.`users` (
   `email` VARCHAR(255) NOT NULL,
   `password` VARCHAR(100) NOT NULL,
   `role` VARCHAR(15) NOT NULL,
-  `create_time` TIMESTAMP NULL,
+  `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`users_ID`),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 0
-DEFAULT CHARACTER SET = utf8mb3;
-
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`addresses`
+-- Table `addresses`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `express_food`.`addresses`;
-CREATE TABLE IF NOT EXISTS `express_food`.`addresses` (
+CREATE TABLE `addresses` (
   `Address_ID` INT NOT NULL AUTO_INCREMENT,
   `Street` VARCHAR(100) NOT NULL,
   `Postal_Code` VARCHAR(10) NOT NULL,
@@ -56,138 +48,94 @@ CREATE TABLE IF NOT EXISTS `express_food`.`addresses` (
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`Address_ID`, `users_ID`),
-  INDEX `fk_Address_users1_idx` (`users_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_Address_users1`
+  INDEX `fk_addresses_users_idx` (`users_ID` ASC),
+  CONSTRAINT `fk_addresses_users`
     FOREIGN KEY (`users_ID`)
-    REFERENCES `express_food`.`users` (`users_ID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
+    REFERENCES `users` (`users_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`categories`
+-- Table `categories`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `express_food`.`categories`;
-CREATE TABLE IF NOT EXISTS `express_food`.`categories` (
+CREATE TABLE `categories` (
   `category_ID` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
-  PRIMARY KEY (`category_ID`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 0
-DEFAULT CHARACTER SET = utf8mb3;
-
+  PRIMARY KEY (`category_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`orderhistory`
+-- Table `orderhistory`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `express_food`.`orderhistory`;
-CREATE TABLE IF NOT EXISTS `express_food`.`orderhistory` (
+CREATE TABLE `orderhistory` (
   `OrderHistory_ID` INT NOT NULL AUTO_INCREMENT,
   `Order_Date` DATETIME NULL DEFAULT NULL,
+  `DeliveryTime` DATETIME NULL DEFAULT NULL,
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
   `users_ID` INT NOT NULL,
   PRIMARY KEY (`OrderHistory_ID`, `users_ID`),
-  INDEX `fk_orderhistory_users1_idx` (`users_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_orderhistory_users1`
+  INDEX `fk_orderhistory_users_idx` (`users_ID` ASC),
+  CONSTRAINT `fk_orderhistory_users`
     FOREIGN KEY (`users_ID`)
-    REFERENCES `express_food`.`users` (`users_ID`)
+    REFERENCES `users` (`users_ID`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`delivery_manager`
+-- Table `menuitems`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `express_food`.`delivery_manager`;
-CREATE TABLE IF NOT EXISTS `express_food`.`delivery_manager` (
-  `delivery_manager_id` INT NOT NULL AUTO_INCREMENT,
-  `start_time` DATETIME NULL DEFAULT NULL,
-  `end_time` DATETIME NULL DEFAULT NULL,
-  `users_ID` INT NOT NULL,
-  `Address_ID` INT NOT NULL,
-  `OrderHistory_ID` INT NOT NULL,
-  PRIMARY KEY (`delivery_manager_id`, `users_ID`, `Address_ID`, `OrderHistory_ID`),
-  INDEX `fk_delivery_manager_Users1_idx` (`users_ID` ASC) VISIBLE,
-  INDEX `fk_delivery_manager_Addresses1_idx` (`Address_ID` ASC) VISIBLE,
-  INDEX `fk_delivery_manager_orderhistory1_idx` (`OrderHistory_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_delivery_manager_Addresses1`
-    FOREIGN KEY (`Address_ID`)
-    REFERENCES `express_food`.`addresses` (`Address_ID`),
-  CONSTRAINT `fk_delivery_manager_Users1`
-    FOREIGN KEY (`users_ID`)
-    REFERENCES `express_food`.`users` (`users_ID`),
-  CONSTRAINT `fk_delivery_manager_orderhistory1`
-    FOREIGN KEY (`OrderHistory_ID`)
-    REFERENCES `express_food`.`orderhistory` (`OrderHistory_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `express_food`.`menuitems`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `express_food`.`menuitems` (
+CREATE TABLE `menuitems` (
   `MenuItem_ID` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) NOT NULL,
   `Price` INT NOT NULL,
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
-  PRIMARY KEY (`MenuItem_ID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
+  PRIMARY KEY (`MenuItem_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`menu_schedule`
+-- Table `menu_schedule`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `express_food`.`menu_schedule` (
+CREATE TABLE `menu_schedule` (
   `Menu_schedule_id` INT NOT NULL AUTO_INCREMENT,
   `date` DATE NOT NULL,
   `MenuItem_ID` INT NOT NULL,
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`Menu_schedule_id`, `MenuItem_ID`),
-  INDEX `fk_Menu_schedule_MenuItem1_idx` (`MenuItem_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_Menu_schedule_MenuItem1`
+  INDEX `fk_menu_schedule_menuitems_idx` (`MenuItem_ID` ASC),
+  CONSTRAINT `fk_menu_schedule_menuitems`
     FOREIGN KEY (`MenuItem_ID`)
-    REFERENCES `express_food`.`menuitems` (`MenuItem_ID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
+    REFERENCES `menuitems` (`MenuItem_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`menuitem_categories`
+-- Table `menuitem_categories`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `express_food`.`menuitem_categories` (
+CREATE TABLE `menuitem_categories` (
   `MenuItem_categories_ID` INT NOT NULL AUTO_INCREMENT,
   `category_ID` INT NOT NULL,
   `MenuItem_ID` INT NOT NULL,
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`MenuItem_categories_ID`, `category_ID`, `MenuItem_ID`),
-  INDEX `fk_categories_has_MenuItem_MenuItem1_idx` (`MenuItem_ID` ASC) VISIBLE,
-  INDEX `fk_categories_has_MenuItem_categories1_idx` (`category_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_categories_has_MenuItem_categories1`
+  INDEX `fk_menuitem_categories_menuitems_idx` (`MenuItem_ID` ASC),
+  INDEX `fk_menuitem_categories_categories_idx` (`category_ID` ASC),
+  CONSTRAINT `fk_menuitem_categories_categories`
     FOREIGN KEY (`category_ID`)
-    REFERENCES `express_food`.`categories` (`category_ID`),
-  CONSTRAINT `fk_categories_has_MenuItem_MenuItem1`
+    REFERENCES `categories` (`category_ID`),
+  CONSTRAINT `fk_menuitem_categories_menuitems`
     FOREIGN KEY (`MenuItem_ID`)
-    REFERENCES `express_food`.`menuitems` (`MenuItem_ID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
+    REFERENCES `menuitems` (`MenuItem_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`menuitem_order`
+-- Table `menuitem_order`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `express_food`.`menuitem_order` (
+CREATE TABLE `menuitem_order` (
   `MenuItem_Order_ID` INT NOT NULL AUTO_INCREMENT,
   `Quantity` INT NOT NULL,
   `MenuItem_ID` INT NOT NULL,
@@ -195,59 +143,80 @@ CREATE TABLE IF NOT EXISTS `express_food`.`menuitem_order` (
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`MenuItem_Order_ID`, `MenuItem_ID`, `OrderHistory_ID`),
-  INDEX `fk_MenuItem_Order_MenuItem1_idx` (`MenuItem_ID` ASC) VISIBLE,
-  INDEX `fk_MenuItem_Order_OrderHistory1_idx` (`OrderHistory_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_MenuItem_Order_MenuItem1`
+  INDEX `fk_menuitem_order_menuitems_idx` (`MenuItem_ID` ASC),
+  INDEX `fk_menuitem_order_orderhistory_idx` (`OrderHistory_ID` ASC),
+  CONSTRAINT `fk_menuitem_order_menuitems`
     FOREIGN KEY (`MenuItem_ID`)
-    REFERENCES `express_food`.`menuitems` (`MenuItem_ID`),
-  CONSTRAINT `fk_MenuItem_Order_OrderHistory1`
+    REFERENCES `menuitems` (`MenuItem_ID`),
+  CONSTRAINT `fk_menuitem_order_orderhistory`
     FOREIGN KEY (`OrderHistory_ID`)
-    REFERENCES `express_food`.`orderhistory` (`OrderHistory_ID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
+    REFERENCES `orderhistory` (`OrderHistory_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`roles`
+-- Table `roles`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `express_food`.`roles` (
+CREATE TABLE `roles` (
   `roles_ID` INT NOT NULL AUTO_INCREMENT,
   `role` VARCHAR(45) NOT NULL,
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
-  PRIMARY KEY (`roles_ID`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 0
-DEFAULT CHARACTER SET = utf8mb3;
-
+  PRIMARY KEY (`roles_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- -----------------------------------------------------
--- Table `express_food`.`users_roles`
+-- Table `users_roles`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `express_food`.`users_roles` (
+CREATE TABLE `users_roles` (
   `users_roles_ID` INT NOT NULL AUTO_INCREMENT,
   `users_ID` INT NOT NULL,
   `roles_ID` INT NOT NULL,
   `create_time` TIMESTAMP NULL DEFAULT NULL,
   `update_time` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`users_roles_ID`, `users_ID`, `roles_ID`),
-  INDEX `fk_users_has_roles_roles1_idx` (`roles_ID` ASC) VISIBLE,
-  INDEX `fk_users_has_roles_users1_idx` (`users_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_users_has_roles_roles1`
+  INDEX `fk_users_roles_roles_idx` (`roles_ID` ASC),
+  INDEX `fk_users_roles_users_idx` (`users_ID` ASC),
+  CONSTRAINT `fk_users_roles_roles`
     FOREIGN KEY (`roles_ID`)
-    REFERENCES `express_food`.`roles` (`roles_ID`),
-  CONSTRAINT `fk_users_has_roles_users1`
+    REFERENCES `roles` (`roles_ID`),
+  CONSTRAINT `fk_users_roles_users`
     FOREIGN KEY (`users_ID`)
-    REFERENCES `express_food`.`users` (`users_ID`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
+    REFERENCES `users` (`users_ID`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
+-- -----------------------------------------------------
+-- Table `delivery_manager`
+-- -----------------------------------------------------
+CREATE TABLE `delivery_manager` (
+  `delivery_manager_id` INT NOT NULL AUTO_INCREMENT,
+  `start_time` DATETIME NULL DEFAULT NULL,
+  `end_time` DATETIME NULL DEFAULT NULL,
+  `users_ID` INT NOT NULL,
+  `Address_ID` INT NOT NULL,
+  `OrderHistory_ID` INT NOT NULL,
+  PRIMARY KEY (`delivery_manager_id`, `users_ID`, `Address_ID`, `OrderHistory_ID`),
+  INDEX `fk_delivery_manager_users_idx` (`users_ID` ASC),
+  INDEX `fk_delivery_manager_addresses_idx` (`Address_ID` ASC),
+  INDEX `fk_delivery_manager_orderhistory_idx` (`OrderHistory_ID` ASC),
+  CONSTRAINT `fk_delivery_manager_addresses`
+    FOREIGN KEY (`Address_ID`)
+    REFERENCES `addresses` (`Address_ID`),
+  CONSTRAINT `fk_delivery_manager_users`
+    FOREIGN KEY (`users_ID`)
+    REFERENCES `users` (`users_ID`),
+  CONSTRAINT `fk_delivery_manager_orderhistory`
+    FOREIGN KEY (`OrderHistory_ID`)
+    REFERENCES `orderhistory` (`OrderHistory_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+-- -----------------------------------------------------
+-- Data inserts
+-- -----------------------------------------------------
 
-INSERT INTO `express_food`.`users` ( `firstName`, `lastName`, `phone_number`, `email`, `password`, `role`, `create_time`, `update_time`)
+INSERT INTO `users`
+(`firstName`, `lastName`, `phone_number`, `email`, `password`, `role`, `create_time`, `update_time`)
 VALUES
 ('Simon', 'Meister', '123-456-7890', 'simon.meister@example.com', 'password123', 'DeliveryPerson', NOW(), NULL),
 ('Martin', 'Buri', '243-547-9990', 'martin.buri@example.com', 'password456', 'DeliveryPerson', NOW(), NULL),
@@ -259,8 +228,26 @@ VALUES
 ('Rieben-Wirz', 'Arthur', '0796561007', 'arthur.rieben@bluewin.ch', 'clientpass4', 'Client', NOW(), NULL),
 ('Ryser', 'Sonja', '0792237133', 'sonja.ryser@gmx.ch', 'clientpass5', 'Client', NOW(), NULL);
 
--- Insert data into the `Addresses` table
-INSERT INTO `express_food`.`Addresses` (`Street`, `Postal_Code`, `City`, `users_ID`, `create_time`, `update_time`)
+INSERT INTO `roles` (`role`, `create_time`, `update_time`)
+VALUES
+('DeliveryPerson', NOW(), NULL),
+('Client', NOW(), NULL),
+('Chef', NOW(), NULL),
+('Admin', NOW(), NULL);
+
+INSERT INTO `users_roles` (`users_ID`, `roles_ID`, `create_time`, `update_time`)
+VALUES
+(1, 1, NOW(), NULL),
+(2, 1, NOW(), NULL),
+(3, 1, NOW(), NULL),
+(4, 1, NOW(), NULL),
+(5, 2, NOW(), NULL),
+(6, 2, NOW(), NULL),
+(7, 2, NOW(), NULL),
+(8, 2, NOW(), NULL),
+(9, 2, NOW(), NULL);
+
+INSERT INTO `addresses` (`Street`, `Postal_Code`, `City`, `users_ID`, `create_time`, `update_time`)
 VALUES
 ('Birkenweg 17', '3661', 'Uetendorf', 1, NOW(), NULL),
 ('Dengel 336', '3662', 'Seftigen', 2, NOW(), NULL),
@@ -272,28 +259,12 @@ VALUES
 ('Feldstrasse 8', '3613', 'Steffisburg', 8, NOW(), NULL),
 ('Bergweg 15', '3604', 'Thun', 9, NOW(), NULL);
 
--- Insert data into the `Roles` table
-INSERT INTO `express_food`.`Roles` (`role`, `create_time`, `update_time`)
-VALUES
-('DeliveryPerson', NOW(), NULL),
-('Client', NOW(), NULL),
-('Chef', NOW(), NULL),
-('Admin', NOW(), NULL);
-
--- Insert data into the `categories` table
-INSERT INTO `express_food`.`categories` (`name`, `create_time`, `update_time`)
+INSERT INTO `categories` (`name`, `create_time`, `update_time`)
 VALUES
 ('Main', NOW(), NULL),
 ('Dessert', NOW(), NULL);
 
-
-
-
-
-
-
--- Insert data into the `MenuItems` table
-INSERT INTO `express_food`.`MenuItems` (`Name`, `Price`, `create_time`, `update_time`)
+INSERT INTO `menuitems` (`Name`, `Price`, `create_time`, `update_time`)
 VALUES
 ('Chicken curry and mashed peas', 750, NOW(), NULL),
 ('Fish and chips', 699, NOW(), NULL),
@@ -316,65 +287,102 @@ VALUES
 ('Apple pie and custard', 250, NOW(), NULL),
 ('Strawberry cheesecake', 350, NOW(), NULL);
 
-
-
--- Insert data into the `MenuItem_categories` table
-INSERT INTO `express_food`.`MenuItem_categories` (`category_ID`, `MenuItem_ID`, `create_time`, `update_time`)
+INSERT INTO `menuitem_categories` (`category_ID`, `MenuItem_ID`, `create_time`, `update_time`)
 VALUES
-(1, 1, NOW(), NULL),   -- Chicken curry and mashed peas in Main category
-(1, 2, NOW(), NULL),   -- Fish and chips in Main category
-(2, 3, NOW(), NULL),   -- Pineapple cake in Dessert category
-(2, 4, NOW(), NULL),   -- Cherry cake in Dessert category
-(1, 5, NOW(), NULL),   -- Sauerkraut and bratwurst in Main category
-(1, 6, NOW(), NULL),  -- Shepherds pie in Main category
-(2, 7, NOW(), NULL),  -- Peach clafoutis in Dessert category
-(2, 8, NOW(), NULL),  -- Strawberry tart in Dessert category
-(1, 9, NOW(), NULL),  -- Caesar salad in Main category
-(1, 10, NOW(), NULL),  -- Meat pie and sausages in Main category
-(2, 11, NOW(), NULL),  -- Chocolate mud cake in Dessert category
-(2, 12, NOW(), NULL),  -- Apple crumble in Dessert category
-(1, 13, NOW(), NULL),  -- Chicken curry and mashed potatoes in Main category
-(1, 14, NOW(), NULL),  -- Meatloaf in Main category
-(2, 15, NOW(), NULL),  -- Cheesecake in Dessert category
-(2, 16, NOW(), NULL),  -- Exotic fruit salad in Dessert category
-(1, 17, NOW(), NULL),  -- Tacos in Main category
-(1, 18, NOW(), NULL),  -- Chicken Fritadelle in Main category
-(2, 19, NOW(), NULL),  -- Apple pie and custard in Dessert category
-(2, 20, NOW(), NULL);  -- Strawberry cheesecake in Dessert category
+(1, 1, NOW(), NULL),
+(1, 2, NOW(), NULL),
+(2, 3, NOW(), NULL),
+(2, 4, NOW(), NULL),
+(1, 5, NOW(), NULL),
+(1, 6, NOW(), NULL),
+(2, 7, NOW(), NULL),
+(2, 8, NOW(), NULL),
+(1, 9, NOW(), NULL),
+(1, 10, NOW(), NULL),
+(2, 11, NOW(), NULL),
+(2, 12, NOW(), NULL),
+(1, 13, NOW(), NULL),
+(1, 14, NOW(), NULL),
+(2, 15, NOW(), NULL),
+(2, 16, NOW(), NULL),
+(1, 17, NOW(), NULL),
+(1, 18, NOW(), NULL),
+(2, 19, NOW(), NULL),
+(2, 20, NOW(), NULL);
 
--- Insert data into the OrderHistory table with create_time and update_time
-INSERT INTO `express_food`.`OrderHistory` (`Order_Date`, `create_time`, `update_time`, `users_ID`)
+-- Example daily menus: 2 main dishes and 2 desserts per date
+INSERT INTO `menu_schedule` (`date`, `MenuItem_ID`, `create_time`, `update_time`)
 VALUES
-('2023-08-20 13:14:07', NOW(), NULL, 5),
-('2023-08-20 11:04:17', NOW(), NULL, 6),
-('2023-08-21 17:14:27', NOW(), NULL, 7),
-('2023-08-21 20:20:57', NOW(), NULL, 8),
-('2023-08-21 18:06:06', NOW(), NULL, 9);
+('2023-08-20', 1, NOW(), NULL),
+('2023-08-20', 2, NOW(), NULL),
+('2023-08-20', 3, NOW(), NULL),
+('2023-08-20', 4, NOW(), NULL),
+('2023-08-21', 5, NOW(), NULL),
+('2023-08-21', 6, NOW(), NULL),
+('2023-08-21', 7, NOW(), NULL),
+('2023-08-21', 8, NOW(), NULL),
+('2023-08-22', 9, NOW(), NULL),
+('2023-08-22', 10, NOW(), NULL),
+('2023-08-22', 11, NOW(), NULL),
+('2023-08-22', 12, NOW(), NULL);
 
-
--- Insert data into the `delivery_manager` table
-INSERT INTO `express_food`.`delivery_manager` (`start_time`, `end_time`, `users_ID`, `Address_ID`, `OrderHistory_ID`)
+INSERT INTO `orderhistory`
+(`Order_Date`, `DeliveryTime`, `create_time`, `update_time`, `users_ID`)
 VALUES
-('2023-08-20 13:00:00', '2023-08-20 22:00:00', 1, 1, 1),
-('2023-08-20 12:00:00', '2023-08-20 21:00:00', 2, 2, 2),
-('2023-08-20 11:00:00', '2023-08-20 20:00:00', 3, 3, 3),
-('2023-08-20 10:00:00', '2023-08-20 19:00:00', 4, 4, 4);
+('2023-08-20 13:14:07', '2023-08-20 13:28:17', NOW(), NULL, 5),
+('2023-08-20 11:04:17', '2023-08-20 11:24:47', NOW(), NULL, 6),
+('2023-08-21 17:14:27', '2023-08-21 17:30:27', NOW(), NULL, 7),
+('2023-08-21 20:20:57', '2023-08-21 20:39:57', NOW(), NULL, 8),
+('2023-08-21 18:06:06', '2023-08-21 18:16:56', NOW(), NULL, 9),
+('2023-08-22 11:37:45', '2023-08-22 11:49:55', NOW(), NULL, 5),
+('2023-08-22 22:34:00', '2023-08-22 22:48:08', NOW(), NULL, 6),
+('2023-08-23 20:08:20', '2023-08-23 20:25:28', NOW(), NULL, 7),
+('2023-08-23 15:03:02', '2023-08-23 15:20:00', NOW(), NULL, 8),
+('2023-08-23 12:12:12', '2023-08-23 12:29:02', NOW(), NULL, 9),
+('2023-08-24 16:44:47', '2023-08-24 16:54:57', NOW(), NULL, 5),
+('2023-08-24 13:24:27', '2023-08-24 13:39:37', NOW(), NULL, 6),
+('2023-08-25 14:22:09', '2023-08-25 14:40:09', NOW(), NULL, 7);
 
+INSERT INTO `menuitem_order` (`Quantity`, `MenuItem_ID`, `OrderHistory_ID`, `create_time`, `update_time`)
+VALUES
+(1, 1, 1, NOW(), NULL),
+(2, 3, 1, NOW(), NULL),
+(1, 2, 2, NOW(), NULL),
+(1, 4, 2, NOW(), NULL),
+(2, 5, 3, NOW(), NULL),
+(1, 7, 3, NOW(), NULL),
+(1, 6, 4, NOW(), NULL),
+(2, 8, 4, NOW(), NULL),
+(1, 9, 5, NOW(), NULL),
+(1, 11, 5, NOW(), NULL),
+(2, 10, 6, NOW(), NULL),
+(1, 12, 6, NOW(), NULL),
+(1, 13, 7, NOW(), NULL),
+(1, 15, 7, NOW(), NULL);
 
+INSERT INTO `delivery_manager`
+(`start_time`, `end_time`, `users_ID`, `Address_ID`, `OrderHistory_ID`)
+VALUES
+('2023-08-20 13:15:00', '2023-08-20 13:28:17', 1, 5, 1),
+('2023-08-20 11:05:00', '2023-08-20 11:24:47', 2, 6, 2),
+('2023-08-21 17:15:00', '2023-08-21 17:30:27', 3, 7, 3),
+('2023-08-21 20:21:00', '2023-08-21 20:39:57', 4, 8, 4),
+('2023-08-21 18:07:00', '2023-08-21 18:16:56', 1, 9, 5),
+('2023-08-22 11:38:00', '2023-08-22 11:49:55', 2, 5, 6),
+('2023-08-22 22:35:00', '2023-08-22 22:48:08', 3, 6, 7),
+('2023-08-23 20:09:00', '2023-08-23 20:25:28', 4, 7, 8),
+('2023-08-23 15:04:00', '2023-08-23 15:20:00', 1, 8, 9),
+('2023-08-23 12:13:00', '2023-08-23 12:29:02', 2, 9, 10),
+('2023-08-24 16:45:00', '2023-08-24 16:54:57', 3, 5, 11),
+('2023-08-24 13:25:00', '2023-08-24 13:39:37', 4, 6, 12),
+('2023-08-25 14:23:00', '2023-08-25 14:40:09', 1, 7, 13);
 
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
-SELECT *
-FROM users
-WHERE role = 'Client';
-
-
-SELECT *
-FROM users
-WHERE role = 'DeliveryPerson';
-
-SELECT * 
-FROM MenuItems;
-
-select * 
-from OrderHistory;
-
+SHOW TABLES;
+SELECT * FROM `users`;
+SELECT * FROM `menuitems`;
+SELECT * FROM `orderhistory`;
+SELECT * FROM `delivery_manager`;
